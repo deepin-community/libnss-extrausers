@@ -1,0 +1,26 @@
+From 56f52cf1ec2cf3eba13c68c733ab35b5feae8ace Mon Sep 17 00:00:00 2001
+From: Philipp Hahn <hahn@univention.de>
+Date: Thu, 21 Jul 2016 09:42:47 +0200
+Subject: Bug #29915: min GID
+
+Check for gid < MINGID before loop instead of terminating the loop on the first line with gid < MINGID.
+---
+ passwd.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/passwd.c b/passwd.c
+index 80fb916..0e20074 100644
+--- a/passwd.c
++++ b/passwd.c
+@@ -72,6 +72,11 @@ static inline enum nss_status p_search(FILE *f, const char *name, const uid_t ui
+ 	gid_t t_gid;
+ 	char *t_name, *t_passwd, *t_gecos, *t_shell, *t_dir;
+ 
++	if (uid != 0 && uid < MINUID) {
++		*errnop = ENOENT;
++		return NSS_STATUS_NOTFOUND;
++	}
++
+ 	if (stream == NULL) {
+ 		stream = fopen(USERSFILE, "re");
+ 		if (stream == NULL) {

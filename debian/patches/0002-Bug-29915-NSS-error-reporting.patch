@@ -1,0 +1,119 @@
+From 3ff1121b47387a3280c0e235e8fed81c434a8403 Mon Sep 17 00:00:00 2001
+From: Philipp Hahn <hahn@univention.de>
+Date: Thu, 21 Jul 2016 09:42:46 +0200
+Subject: Bug #29915: NSS error reporting
+
+Report proper error on out-of-memory-errors as required by NSS spec.
+---
+ group.c  | 6 +++++-
+ passwd.c | 4 +++-
+ shadow.c | 4 +++-
+ 3 files changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/group.c b/group.c
+index e523064..dc84c63 100644
+--- a/group.c
++++ b/group.c
+@@ -109,6 +109,7 @@ static inline char **parse_list(char *line, char *data, size_t datalen, int *err
+ 	return list;
+ }
+ 
++/* Advance pointer p to next column and set h to end of previous column terminated by \0 */
+ #define TOCOLON(p, h) { \
+ 	while (*p && *p != ':') \
+ 		p++; \
+@@ -140,10 +141,12 @@ static inline enum nss_status g_search(FILE *stream, const char *name, const gid
+ 		p = fgets_unlocked(buffer, buflen, stream);
+ 		if (p == NULL) {
+ 			if (feof_unlocked(stream)) {
++				/* EOF reached: not found */
+ 				funlockfile(stream);
+ 				*errnop = ENOENT;
+ 				return NSS_STATUS_NOTFOUND;
+ 			} else {
++				/* other error */
+ 				funlockfile(stream);
+ 				*errnop = errno;
+ 				return NSS_STATUS_UNAVAIL;
+@@ -151,6 +154,7 @@ static inline enum nss_status g_search(FILE *stream, const char *name, const gid
+ 		}
+ 		h = index(p, '\n');
+ 		if (buffer[buflen - 1] != '\xff' || h == NULL) {
++			/* buffer too small */
+ 			funlockfile(stream);
+ 			*errnop = ERANGE;
+ 			fseeko(stream, last_position, SEEK_SET);
+@@ -199,6 +203,7 @@ static inline enum nss_status g_search(FILE *stream, const char *name, const gid
+ 		if (t_mem == NULL){
+ 			funlockfile(stream);
+ 			fseeko(stream, last_position, SEEK_SET);
++			*errnop = ERANGE;
+ 			return NSS_STATUS_TRYAGAIN;
+ 		}
+ 		funlockfile(stream);
+@@ -235,7 +240,6 @@ enum nss_status _nss_extrausers_getgrent_r(struct group *gr, char *buffer, size_
+ 	return g_search(groupsfile, NULL, 0, gr, errnop, buffer, buflen);
+ }
+ 
+-
+ enum nss_status _nss_extrausers_getgrnam_r(const char *name, struct group *gr, char *buffer, size_t buflen, int *errnop) {
+ 	enum nss_status e;
+ 	FILE *f;
+diff --git a/passwd.c b/passwd.c
+index bb97c52..80fb916 100644
+--- a/passwd.c
++++ b/passwd.c
+@@ -76,7 +76,7 @@ static inline enum nss_status p_search(FILE *f, const char *name, const uid_t ui
+ 		stream = fopen(USERSFILE, "re");
+ 		if (stream == NULL) {
+ 			*errnop = errno;
+-			return NSS_STATUS_UNAVAIL;
++			return *errnop == ENOMEM ? NSS_STATUS_TRYAGAIN : NSS_STATUS_UNAVAIL;
+ 		}
+ 	}
+ 	flockfile(stream);
+@@ -96,6 +96,7 @@ static inline enum nss_status p_search(FILE *f, const char *name, const uid_t ui
+ 		}
+ 		h = index(p, '\n');
+ 		if (buffer[buflen - 1] != '\xff' || h == NULL) {
++			/* buffer too small */
+ 			SANEQUIT
+ 			*errnop = ERANGE;
+ 			return NSS_STATUS_TRYAGAIN;
+@@ -107,6 +108,7 @@ static inline enum nss_status p_search(FILE *f, const char *name, const uid_t ui
+ 		/* Ignore comments */
+ 		if (*p == '#')
+ 			continue;
++
+ 		/* extract name */
+ 		while (isspace(*p))
+ 			++p;
+diff --git a/shadow.c b/shadow.c
+index 625ac98..0b48255 100644
+--- a/shadow.c
++++ b/shadow.c
+@@ -64,7 +64,7 @@ enum nss_status _nss_extrausers_getspnam_r(const char *name, struct spwd *spw, c
+ 	stream = fopen(SHADOWFILE, "re");
+ 	if( stream == NULL ) {
+ 		*errnop = errno;
+-		return NSS_STATUS_UNAVAIL;
++		return *errnop == ENOMEM ? NSS_STATUS_TRYAGAIN : NSS_STATUS_UNAVAIL;
+ 	}
+ 	flockfile(stream);
+ 	s = shadow_search(stream, name, spw, buffer, buflen, errnop);
+@@ -145,6 +145,7 @@ static enum nss_status shadow_search(FILE *stream, const char *name, struct spwd
+ 		}
+ 		h = index(p, '\n');
+ 		if( buffer[buflen - 1] != '\xff' || h == NULL ) {
++			/* buffer too small */
+ 			*errnop = ERANGE;
+ 			return NSS_STATUS_TRYAGAIN;
+ 		}
+@@ -200,6 +201,7 @@ static enum nss_status shadow_search(FILE *stream, const char *name, struct spwd
+ 			return NSS_STATUS_UNAVAIL;
+ 		} else if (p == h)
+ 			t_flag = -1;
++
+ 		*errnop = 0;
+ 		spw->sp_namp = t_namp;
+ 		spw->sp_pwdp = t_pwdp;

@@ -1,0 +1,51 @@
+From 7111866968f6f34c417df653dc0aee32525dc566 Mon Sep 17 00:00:00 2001
+From: Philipp Hahn <hahn@univention.de>
+Date: Thu, 21 Jul 2016 09:42:49 +0200
+Subject: Bug #29915: strip trailing whitespace
+
+Fix stripping trailing whitespace.
+---
+ group.c  | 2 +-
+ passwd.c | 2 +-
+ shadow.c | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/group.c b/group.c
+index 1ff4269..7d49e7d 100644
+--- a/group.c
++++ b/group.c
+@@ -160,7 +160,7 @@ static inline enum nss_status g_search(FILE *stream, const char *name, const gid
+ 			*errnop = ERANGE;
+ 			return NSS_STATUS_TRYAGAIN;
+ 		}
+-		while (isspace(*h) && h != p) {
++		while (h >= p && isspace(*h)) {
+ 			*h = '\0';
+ 			h--;
+ 		}
+diff --git a/passwd.c b/passwd.c
+index 0e20074..c44b52a 100644
+--- a/passwd.c
++++ b/passwd.c
+@@ -106,7 +106,7 @@ static inline enum nss_status p_search(FILE *f, const char *name, const uid_t ui
+ 			*errnop = ERANGE;
+ 			return NSS_STATUS_TRYAGAIN;
+ 		}
+-		while (isspace(*h) && h != p) {
++		while (h >= p && isspace(*h)) {
+ 			*h = '\0';
+ 			h--;
+ 		}
+diff --git a/shadow.c b/shadow.c
+index 0b48255..093e8c4 100644
+--- a/shadow.c
++++ b/shadow.c
+@@ -149,7 +149,7 @@ static enum nss_status shadow_search(FILE *stream, const char *name, struct spwd
+ 			*errnop = ERANGE;
+ 			return NSS_STATUS_TRYAGAIN;
+ 		}
+-		while( isspace(*h) && h >= p) {
++		while (h >= p && isspace(*h)) {
+ 			*h = '\0';
+ 			h--;
+ 		}

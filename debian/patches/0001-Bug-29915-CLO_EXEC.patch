@@ -1,0 +1,78 @@
+From 7fff46e1778ab85c7767dfe96dfa67877502d377 Mon Sep 17 00:00:00 2001
+From: Philipp Hahn <hahn@univention.de>
+Date: Thu, 21 Jul 2016 09:42:45 +0200
+Subject: Bug #29915: CLO_EXEC
+
+Open files CLO_EXEC for process safety.
+---
+ group.c  | 6 +++---
+ passwd.c | 4 ++--
+ shadow.c | 2 +-
+ 3 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/group.c b/group.c
+index 41b72d3..e523064 100644
+--- a/group.c
++++ b/group.c
+@@ -213,7 +213,7 @@ static inline enum nss_status g_search(FILE *stream, const char *name, const gid
+ 
+ 
+ enum nss_status _nss_extrausers_setgrent(void) {
+-	groupsfile = fopen(GROUPSFILE, "r");
++	groupsfile = fopen(GROUPSFILE, "re");
+ 	if (groupsfile == NULL)
+ 		return NSS_STATUS_UNAVAIL;
+ 	return NSS_STATUS_SUCCESS;
+@@ -245,7 +245,7 @@ enum nss_status _nss_extrausers_getgrnam_r(const char *name, struct group *gr, c
+ 	if (gr == NULL || name == NULL)
+ 		return NSS_STATUS_UNAVAIL;
+ 
+-	f = fopen(GROUPSFILE, "r");
++	f = fopen(GROUPSFILE, "re");
+ 	if (f == NULL) {
+ 		*errnop = errno;
+ 		return NSS_STATUS_UNAVAIL;
+@@ -265,7 +265,7 @@ enum nss_status _nss_extrausers_getgrgid_r(const gid_t gid, struct group *gr, ch
+ 	if (gid == 0 || gid < MINGID)
+ 		return NSS_STATUS_NOTFOUND;
+ 
+-	f = fopen(GROUPSFILE, "r");
++	f = fopen(GROUPSFILE, "re");
+ 	if (f == NULL) {
+ 		*errnop = errno;
+ 		return NSS_STATUS_UNAVAIL;
+diff --git a/passwd.c b/passwd.c
+index 88cb1b7..bb97c52 100644
+--- a/passwd.c
++++ b/passwd.c
+@@ -73,7 +73,7 @@ static inline enum nss_status p_search(FILE *f, const char *name, const uid_t ui
+ 	char *t_name, *t_passwd, *t_gecos, *t_shell, *t_dir;
+ 
+ 	if (stream == NULL) {
+-		stream = fopen(USERSFILE, "r");
++		stream = fopen(USERSFILE, "re");
+ 		if (stream == NULL) {
+ 			*errnop = errno;
+ 			return NSS_STATUS_UNAVAIL;
+@@ -209,7 +209,7 @@ enum nss_status _nss_extrausers_setpwent(void) {
+ 		fclose(usersfile);
+ 		usersfile = NULL;
+ 	}
+-	usersfile = fopen(USERSFILE, "r");
++	usersfile = fopen(USERSFILE, "re");
+ 	if (usersfile == NULL)
+ 	{
+ 		return NSS_STATUS_UNAVAIL;
+diff --git a/shadow.c b/shadow.c
+index 9685174..625ac98 100644
+--- a/shadow.c
++++ b/shadow.c
+@@ -61,7 +61,7 @@ enum nss_status _nss_extrausers_getspnam_r(const char *name, struct spwd *spw, c
+ 		return NSS_STATUS_UNAVAIL;
+ 	}
+ 
+-	stream = fopen(SHADOWFILE, "r");
++	stream = fopen(SHADOWFILE, "re");
+ 	if( stream == NULL ) {
+ 		*errnop = errno;
+ 		return NSS_STATUS_UNAVAIL;

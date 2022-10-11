@@ -1,0 +1,6 @@
+0001-Bug-29915-CLO_EXEC.patch
+0002-Bug-29915-NSS-error-reporting.patch
+0003-Bug-29915-min-GID.patch
+0004-Bug-29915-fseek-thread-safety.patch
+0005-Bug-29915-strip-trailing-whitespace.patch
+0006-Bug-39775-Fix-setgrent.patch

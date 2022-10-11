@@ -1,0 +1,35 @@
+From 5481271781001ee06e9caa66b7eb4b95e4df68b3 Mon Sep 17 00:00:00 2001
+From: Philipp Hahn <hahn@univention.de>
+Date: Thu, 21 Jul 2016 09:42:48 +0200
+Subject: Bug #29915: fseek() thread safety
+
+Restore file position before unlock for thread safety.
+---
+ group.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/group.c b/group.c
+index dc84c63..1ff4269 100644
+--- a/group.c
++++ b/group.c
+@@ -155,9 +155,9 @@ static inline enum nss_status g_search(FILE *stream, const char *name, const gid
+ 		h = index(p, '\n');
+ 		if (buffer[buflen - 1] != '\xff' || h == NULL) {
+ 			/* buffer too small */
++			fseeko(stream, last_position, SEEK_SET);
+ 			funlockfile(stream);
+ 			*errnop = ERANGE;
+-			fseeko(stream, last_position, SEEK_SET);
+ 			return NSS_STATUS_TRYAGAIN;
+ 		}
+ 		while (isspace(*h) && h != p) {
+@@ -201,8 +201,8 @@ static inline enum nss_status g_search(FILE *stream, const char *name, const gid
+ 		h++; // Over ':'
+ 		t_mem = parse_list(h, buffer, buflen, errnop);
+ 		if (t_mem == NULL){
+-			funlockfile(stream);
+ 			fseeko(stream, last_position, SEEK_SET);
++			funlockfile(stream);
+ 			*errnop = ERANGE;
+ 			return NSS_STATUS_TRYAGAIN;
+ 		}

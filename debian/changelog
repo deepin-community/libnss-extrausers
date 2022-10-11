@@ -1,0 +1,105 @@
+libnss-extrausers (0.6-4) unstable; urgency=medium
+
+  * orphan package
+  * apply some patches from Philipp Hahn
+  * move git repository to collab-maint
+  * replace ldconfig call with a trigger
+  * switch debian/compat to 9
+
+ -- Bernhard R. Link <brlink@debian.org>  Mon, 05 Sep 2016 16:08:15 +0200
+
+libnss-extrausers (0.6-3) unstable; urgency=low
+
+  * fix building lib32 on x390x (needs -m31 instead of -m32)
+
+ -- Bernhard R. Link <brlink@debian.org>  Wed, 16 May 2012 11:28:03 +0200
+
+libnss-extrausers (0.6-2) unstable; urgency=low
+
+  * add lib32 variant to s390x
+
+ -- Bernhard R. Link <brlink@debian.org>  Tue, 15 May 2012 14:35:28 +0200
+
+libnss-extrausers (0.6-1) unstable; urgency=low
+
+  * ignore empty lines (Closes: 653102, 666157)
+  * Standards-Version to 3.9.3, no changes needed
+
+ -- Bernhard R. Link <brlink@debian.org>  Wed, 04 Apr 2012 17:38:14 +0200
+
+libnss-extrausers (0.5-1) unstable; urgency=low
+
+  * groups with too low gid are ignore instead of considered error
+    (Closes: 627279)
+
+ -- Bernhard R. Link <brlink@debian.org>  Wed, 14 Sep 2011 18:59:29 +0200
+
+libnss-extrausers (0.4-2) unstable; urgency=low
+
+  * do not use --no-allow-shlib-undefined gcc no longer
+    supports (Closes: 624971)
+  * Standards-Version to 3.9.2, no changes needed
+
+ -- Bernhard R. Link <brlink@debian.org>  Thu, 05 May 2011 12:07:52 +0200
+
+libnss-extrausers (0.4-1) unstable; urgency=low
+
+  * treat empty fields as -1 to appease new glibc
+  * modernize Debian packaging
+  - debhelper compatibility to 7
+  - standards version to 3.9.1
+  - use dpkg-buildflags (and thus build-depend on new enough dpkg-dev)
+
+ -- Bernhard R. Link <brlink@debian.org>  Sat, 05 Mar 2011 16:16:19 +0100
+
+libnss-extrausers (0.3-1) unstable; urgency=low
+
+  * fix spelling error in README (Closes: 573130)
+  * allow gid 100 (Closes: 566399)
+  * bump standards version
+  * switch to 3.0 source format
+
+ -- Bernhard R. Link <brlink@debian.org>  Tue, 09 Mar 2010 14:55:13 +0100
+
+libnss-extrausers (0.2-3) unstable; urgency=low
+
+  * when a group cannot be returned because of insufficuent
+    buffers supplied by the caller, continue with the same group
+    next time (Closes: 536789)
+
+ -- Bernhard R. Link <brlink@debian.org>  Tue, 28 Jul 2009 11:00:09 +0200
+
+libnss-extrausers (0.2-2) unstable; urgency=low
+
+  * fix build problem on architectures without an alternative
+    architecture to build libraries for (Closes: 530882)
+
+ -- Bernhard R. Link <brlink@debian.org>  Fri, 29 May 2009 17:07:16 +0200
+
+libnss-extrausers (0.2-1) unstable; urgency=low
+
+  * new version
+  - ignore lines starting with # to allow comments
+  * install 32-bit or 64-bit version on architectures where possible
+
+ -- Bernhard R. Link <brlink@debian.org>  Wed, 27 May 2009 13:57:34 +0200
+
+libnss-extrausers (0.1-2) unstable; urgency=low
+
+  * install README file (closes: #488746)
+  * update to Standards-Version 3.8.0
+  - support DEB_BUILD_OPTIONS
+
+ -- Bernhard R. Link <brlink@debian.org>  Tue,  1 Jul 2008 17:31:02 +0200
+
+libnss-extrausers (0.1-1) unstable; urgency=low
+
+  * Initial upload
+
+ -- Bernhard R. Link <brlink@debian.org>  Tue, 17 Apr 2007 16:53:43 +0200
+
+libnss-extrausers (0.1-0) local-etch; urgency=low
+
+  * general clean up and rename to prepare publishing
+
+ -- Bernhard R. Link <brlink@debian.org>  Tue, 13 Feb 2007 21:41:26 +0100

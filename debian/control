@@ -1,0 +1,18 @@
+Source: libnss-extrausers
+Section: admin
+Priority: extra
+Maintainer: Debian QA Group <packages@qa.debian.org>
+Build-Depends: debhelper (>= 7), gcc-multilib [sparc i386 kfreebsd-amd64 amd64 mips mipsel powerpc s390 s390x], dpkg-dev (>= 1.15.7~)
+Standards-Version: 3.9.3
+Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/libnss-extrausers.git/log/?h=debian
+Vcs-Git: git://anonscm.debian.org/collab-maint/libnss-extrausers.git -b debian
+
+Package: libnss-extrausers
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Suggests: ${alternatelibs:Suggests}
+Description: nss module to have an additional passwd, shadow and group file
+ This Name Service Switch (NSS) module reads /var/lib/extrausers/passwd,
+ /var/lib/extrausers/shadow and /var/lib/extrausers/groups, allowing to
+ store system accounts and accounts copied from other systems in different
+ files.

@@ -1,0 +1,36 @@
+From 75950a89b5cde8cf33c1be6451b3fe36ccc26a61 Mon Sep 17 00:00:00 2001
+From: Philipp Hahn <hahn@univention.de>
+Date: Thu, 21 Jul 2016 09:42:50 +0200
+Subject: Bug #39775: Fix setgrent()
+
+If setgrent() is called a 2nd time, the stream must be rewinded.
+---
+ group.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
+
+diff --git a/group.c b/group.c
+index 7d49e7d..5109570 100644
+--- a/group.c
++++ b/group.c
+@@ -218,10 +218,17 @@ static inline enum nss_status g_search(FILE *stream, const char *name, const gid
+ 
+ 
+ enum nss_status _nss_extrausers_setgrent(void) {
+-	groupsfile = fopen(GROUPSFILE, "re");
+-	if (groupsfile == NULL)
+-		return NSS_STATUS_UNAVAIL;
+-	return NSS_STATUS_SUCCESS;
++	enum nss_status status = NSS_STATUS_SUCCESS;
++
++	if (groupsfile == NULL) {
++		groupsfile = fopen(GROUPSFILE, "re");
++		if (groupsfile == NULL)
++			status = errno == EAGAIN ? NSS_STATUS_TRYAGAIN : NSS_STATUS_UNAVAIL;
++	} else {
++		rewind(groupsfile);
++	}
++
++	return status;
+ }
+ 
+ enum nss_status _nss_extrausers_endgrent(void) {
